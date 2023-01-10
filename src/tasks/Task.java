@@ -1,20 +1,24 @@
+package tasks;
 
+import taskManager.TaskManager;
+import tasks.epics.subTasks.SubTask;
 
 import java.util.ArrayList;
 
 
 
-public class Task {
+public class Task{
 
-    ArrayList<SubTask> taskList;
+
+    public ArrayList<SubTask> taskList;
     private String title;
     private String description;
-    private int iD;
+    protected int iD;
     protected String[] status = {"NEW", "IN_PROGRESS", "DONE"};
     private int statusNumber = 0;
-    protected String currentStatus;
-    protected String type = "Task";
-    protected Integer epicID;
+    public String currentStatus;
+    public String type = "Task";
+    public Integer epicID;
 
     public Task(String title, String description) {
         this.title = title;
@@ -70,6 +74,7 @@ public class Task {
     }
 
     public void setId(int iD) {
+        TaskManager.updateId(this, iD);
         this.iD = iD;
     }
 

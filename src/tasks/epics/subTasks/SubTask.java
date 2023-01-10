@@ -1,3 +1,7 @@
+package tasks.epics.subTasks;
+
+import tasks.Task;
+
 public class SubTask extends Task {
 
 
@@ -15,4 +19,8 @@ public class SubTask extends Task {
                 '}';
     }
 
+    @Override
+    public void setId(int iD) {
+        this.iD=iD;
+    }
 }

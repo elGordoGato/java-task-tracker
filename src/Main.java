@@ -1,3 +1,8 @@
+import taskManager.TaskManager;
+import tasks.Task;
+import tasks.epics.Epic;
+import tasks.epics.subTasks.SubTask;
+
 public class Main {
     public static void main(String[] args) {
         TaskManager taskManager = new TaskManager();
@@ -28,6 +33,16 @@ public class Main {
         taskManager.updateTask(task2);
         taskManager.updateTask(subTask3);
         taskManager.printAllTasks();
+
+        Task task11 = new Task("!!!task: pay for water", "too expensive");
+        taskManager.createTask(task11);
+        task11.setId(11);
+        taskManager.updateTask(task11);
+        taskManager.printAllTasks();
+        Task task11FromRepo = taskManager.getByID(11);
+        System.out.println();
+        System.out.println(task11FromRepo);
+
     }
 
 
