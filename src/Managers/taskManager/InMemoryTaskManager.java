@@ -1,17 +1,17 @@
-package taskManager;
+package Managers.taskManager;
 
+import Managers.historyManager.HistoryManager;
 import tasks.Task;
 import tasks.epics.subTasks.SubTask;
-
-import java.util.HashMap;
-
-public class TaskManager {
-    public static HashMap<Integer, Task> allTasks = new HashMap<>();
+import Managers.Managers;
 
 
+public class InMemoryTaskManager implements TaskManager {
+    public HistoryManager historyManager = Managers.getDefaultHistory();
 
 
 
+    @Override
     public void createTask(Task newTask) {
         if (newTask.type.equals("SubTask")){
             allTasks.get(newTask.epicID).taskList.add((SubTask)newTask);
@@ -20,13 +20,12 @@ public class TaskManager {
         allTasks.put(newTask.getID(), newTask);
     }
 
-
-
+    @Override
     public void deleteAllTasks() {
         allTasks.clear();
     }
 
-
+    @Override
     public void printAllTasks() {
         for (Integer hashId : allTasks.keySet()) {
             System.out.println(allTasks.get(hashId));
@@ -38,14 +37,17 @@ public class TaskManager {
         }
     }
 
+    @Override
     public Task getByID(int hashId) {
         if (allTasks.containsKey(hashId)) {
+            historyManager.add(allTasks.get(hashId));
             return allTasks.get(hashId);
         }
         for (Integer id : allTasks.keySet()) {
             if (allTasks.get(id).type.equals("Epic")) {
                 for (SubTask subTask : allTasks.get(id).taskList) {
                     if (subTask.getID() == hashId) {
+                        historyManager.add(subTask);
                         return subTask;
                     }
                 }
@@ -54,6 +56,7 @@ public class TaskManager {
         return null;
     }
 
+    @Override
     public void removeById(int hashId) {
         if (allTasks.containsKey(hashId)) {
             allTasks.remove(hashId);
@@ -65,19 +68,8 @@ public class TaskManager {
             }
         }
     }
-    public static void updateId(Task task, int newID) {
-        if (allTasks.containsKey(task.getID())) {
-            allTasks.put(newID, task);
-            if (allTasks.get(newID).type.equals("Epic")) {
-                for (SubTask subTask : allTasks.get(newID).taskList) {
-                    subTask.epicID = newID;
-                }
-            }
 
-            }
-    }
-
-
+    @Override
     public void updateTask(Task task){
         if (allTasks.containsKey(task.getID())) {
             allTasks.put(task.getID(), task);
@@ -95,6 +87,18 @@ public class TaskManager {
             }
         }
     }
+    public static void updateId(Task task, int newID) {
+        if (allTasks.containsKey(task.getID())) {
+            allTasks.put(newID, task);
+            if (allTasks.get(newID).type.equals("Epic")) {
+                for (SubTask subTask : allTasks.get(newID).taskList) {
+                    subTask.epicID = newID;
+                }
+            }
+
+        }
+    }
+
 
 
 }

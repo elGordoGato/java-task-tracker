@@ -1,11 +1,13 @@
-import taskManager.TaskManager;
+import Managers.Managers;
+import Managers.taskManager.TaskManager;
+import tasks.Status;
 import tasks.Task;
 import tasks.epics.Epic;
 import tasks.epics.subTasks.SubTask;
 
 public class Main {
     public static void main(String[] args) {
-        TaskManager taskManager = new TaskManager();
+        TaskManager taskManager = Managers.getDefault();
 
         Task task1 = new Task("task: pay for water", "too expensive");
         taskManager.createTask(task1);
@@ -28,8 +30,8 @@ public class Main {
         System.out.println(taskManager.allTasks);
         taskManager.printAllTasks();
         System.out.println();
-        subTask3.updateStatus();
-        task2.updateStatus();
+        subTask3.updateStatus(Status.IN_PROGRESS);
+        task2.updateStatus(Status.DONE);
         taskManager.updateTask(task2);
         taskManager.updateTask(subTask3);
         taskManager.printAllTasks();
@@ -40,8 +42,14 @@ public class Main {
         taskManager.updateTask(task11);
         taskManager.printAllTasks();
         Task task11FromRepo = taskManager.getByID(11);
-        System.out.println();
+        for (int i = 0; i < 10; i++) {
+            taskManager.getByID(task2.getID());
+            taskManager.getByID(epic2.getID());
+
+        }
+        taskManager.getByID(subTask1.getID());
         System.out.println(task11FromRepo);
+        System.out.println(Managers.getDefaultHistory().getHistory());
 
     }
 
