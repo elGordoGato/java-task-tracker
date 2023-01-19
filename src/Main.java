@@ -1,5 +1,6 @@
 import Managers.Managers;
 import Managers.taskManager.TaskManager;
+import tasks.SingleTask;
 import tasks.Status;
 import tasks.Task;
 import tasks.epics.Epic;
@@ -9,9 +10,9 @@ public class Main {
     public static void main(String[] args) {
         TaskManager taskManager = Managers.getDefault();
 
-        Task task1 = new Task("task: pay for water", "too expensive");
+        SingleTask task1 = new SingleTask("task: pay for water", "too expensive");
         taskManager.createTask(task1);
-        Task task2 = new Task("task2: pay for electricity", "too expensive");
+        SingleTask task2 = new SingleTask("task2: pay for electricity", "too expensive");
         taskManager.createTask(task2);
 
         Epic epic1 = new Epic("zavedi kota", "bold");
@@ -27,7 +28,7 @@ public class Main {
         SubTask subTask3 = new SubTask(epic2.getID(), "Lech na divan", "cozy");
         taskManager.createTask(subTask3);
 
-        System.out.println(taskManager.allTasks);
+
         taskManager.printAllTasks();
         System.out.println();
         subTask3.updateStatus(Status.IN_PROGRESS);
@@ -36,7 +37,7 @@ public class Main {
         taskManager.updateTask(subTask3);
         taskManager.printAllTasks();
 
-        Task task11 = new Task("!!!task: pay for water", "too expensive");
+        SingleTask task11 = new SingleTask("!!!task: pay for water", "too expensive");
         taskManager.createTask(task11);
         task11.setId(11);
         taskManager.updateTask(task11);
@@ -50,6 +51,7 @@ public class Main {
         taskManager.getByID(subTask1.getID());
         System.out.println(task11FromRepo);
         System.out.println(Managers.getDefaultHistory().getHistory());
+
 
     }
 

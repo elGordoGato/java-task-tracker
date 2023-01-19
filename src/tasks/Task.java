@@ -1,22 +1,18 @@
 package tasks;
 
-import Managers.taskManager.InMemoryTaskManager;
-import tasks.epics.subTasks.SubTask;
-
-import java.util.ArrayList;
 
 
 
-public class Task {
+
+public abstract class Task {
 
 
-    public ArrayList<SubTask> taskList;
-    private String title;
-    private String description;
+    protected String title;
+    protected String description;
     protected int iD;
-    public Status currentStatus;
-    public String type = "Task";
-    public Integer epicID;
+    protected Status currentStatus;
+    protected Type type;
+
 
     public Task(String title, String description) {
         this.title = title;
@@ -55,7 +51,7 @@ public class Task {
 
     @Override
     public String toString() {
-        String address = getClass() + "{" +
+        String address = getType() + "{" +
                 "title='" + title + '\'';
         if (description != null) {
             address += ", description.length='" + description.length() + '\'';
@@ -72,7 +68,6 @@ public class Task {
     }
 
     public void setId(int iD) {
-        InMemoryTaskManager.updateId(this, iD);
         this.iD = iD;
     }
 
@@ -92,11 +87,12 @@ public class Task {
         return description;
     }
 
-    public void updateStatus(Status newStatus) {
-        currentStatus = newStatus;
+    public Status getCurrentStatus() {
+        return currentStatus;
     }
 
-    public void updateStatus(){
+    public Type getType() {
+        return type;
     }
 }
 
