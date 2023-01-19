@@ -1,14 +1,16 @@
 package tasks.epics.subTasks;
 
+import tasks.Status;
 import tasks.Task;
+import tasks.Type;
 
 public class SubTask extends Task {
-
+    Integer epicID;
 
 
     public SubTask(Integer newEpicID, String title, String description) {
         super(title, description);
-        type = "SubTask";
+        type = Type.SUBTASK;
         epicID = newEpicID;
     }
 
@@ -19,8 +21,11 @@ public class SubTask extends Task {
                 '}';
     }
 
-    @Override
-    public void setId(int iD) {
-        this.iD=iD;
+    public Integer getEpicID() {
+        return epicID;
+    }
+
+    public void updateStatus(Status newStatus) {
+        currentStatus = newStatus;
     }
 }
