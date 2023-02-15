@@ -38,12 +38,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
 
-    @Override
-    public void deleteAllTasks() {
-        allTasks.clear();
-        allEpics.clear();
-        allSubtasks.clear();
-    }
+
 
     @Override
     public void printAllTasks() {
@@ -79,11 +74,26 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeById(int hashId) {
         allTasks.remove(hashId);
-        allEpics.remove(hashId);
+        if (allEpics.containsKey(hashId)){
+            for (SubTask subTask : allEpics.remove(hashId).getTaskList()) {
+                allSubtasks.remove(subTask.getID());
+                historyManager.remove(subTask.getID());
+            }
+        }
         if (allSubtasks.containsKey(hashId)) {
             allEpics.get(allSubtasks.get(hashId).getEpicID()).removeSubtask(allSubtasks.get(hashId));
             allSubtasks.remove(hashId);
 
+        }
+        historyManager.remove(hashId);
+    }
+    @Override
+    public void deleteAllTasks() {
+        allTasks.clear();
+        allEpics.clear();
+        allSubtasks.clear();
+        for (Task task : historyManager.getHistory()) {
+            historyManager.remove(task.getID());
         }
     }
 
