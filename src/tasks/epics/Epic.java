@@ -1,10 +1,8 @@
 package tasks.epics;
-
 import tasks.Status;
 import tasks.Task;
 import tasks.Type;
 import tasks.epics.subTasks.SubTask;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +28,12 @@ public class Epic extends Task {
             currentStatus = Status.IN_PROGRESS;
         }
     }
+
+    @Override
+    public void updateStatus(Status newStatus) {
+        updateStatus();
+    }
+
     private boolean isSubTasksStatusRequired(Status status){
         for (SubTask subTask : taskList) {
             if (!subTask.getCurrentStatus().equals(status)){
@@ -38,9 +42,11 @@ public class Epic extends Task {
         }
         return true;
     }
+
     public void addSubTask(SubTask subTask){
         taskList.add(subTask);
     }
+
     public void removeSubtask(SubTask subTask){
         taskList.remove(subTask);
     }

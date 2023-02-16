@@ -1,11 +1,9 @@
 package tasks.epics.subTasks;
-
-import tasks.Status;
 import tasks.Task;
 import tasks.Type;
 
 public class SubTask extends Task {
-    Integer epicID;
+    private final Integer epicID;
 
 
     public SubTask(Integer newEpicID, String title, String description) {
@@ -25,7 +23,4 @@ public class SubTask extends Task {
         return epicID;
     }
 
-    public void updateStatus(Status newStatus) {
-        currentStatus = newStatus;
-    }
 }

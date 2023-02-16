@@ -1,15 +1,12 @@
 package tasks;
 
 
+public class Task {
 
 
-
-public abstract class Task {
-
-
-    protected String title;
-    protected String description;
-    protected int iD;
+    private String title;
+    private String description;
+    private final int iD;
     protected Status currentStatus;
     protected Type type;
 
@@ -19,6 +16,7 @@ public abstract class Task {
         this.description = description;
         iD = hashCode();
         currentStatus = Status.NEW;
+        type = Type.TASK;
     }
 
 
@@ -39,13 +37,13 @@ public abstract class Task {
             // вычисляем хеш первого поля и добавляем к нему начальное значение
             hash = hash + title.hashCode();
         }
-        hash = hash / 31; // умножаем промежуточный результат на простое число
+        hash = hash * 31; // умножаем промежуточный результат на простое число
 
         if (description != null) {
             // вычисляем хеш второго поля и добавляем его к общему результату
             hash = hash + description.hashCode();
         }
-        return hash; // возвращаем итоговый хеш
+        return hash * hash; // возвращаем итоговый хеш
     }
 
 
@@ -67,9 +65,6 @@ public abstract class Task {
         return iD;
     }
 
-    public void setId(int iD) {
-        this.iD = iD;
-    }
 
     public void setTitle(String title) {
         this.title = title;
@@ -93,6 +88,10 @@ public abstract class Task {
 
     public Type getType() {
         return type;
+    }
+
+    public void updateStatus(Status newStatus) {
+        currentStatus = newStatus;
     }
 }
 
