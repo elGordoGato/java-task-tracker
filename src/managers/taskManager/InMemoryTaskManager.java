@@ -1,32 +1,22 @@
-package Managers.taskManager;
-
-import Managers.historyManager.HistoryManager;
-import tasks.SingleTask;
+package managers.taskManager;
+import managers.Managers;
+import managers.historyManager.HistoryManager;
 import tasks.Task;
 import tasks.epics.Epic;
 import tasks.epics.subTasks.SubTask;
-import Managers.Managers;
-
 import java.util.HashMap;
 
 
 public class InMemoryTaskManager implements TaskManager {
     public HistoryManager historyManager = Managers.getDefaultHistory();
-    HashMap<Integer, SingleTask> allTasks = new HashMap<>();
+    HashMap<Integer, Task> allTasks = new HashMap<>();
     HashMap<Integer, Epic> allEpics = new HashMap<>();
     HashMap<Integer, SubTask> allSubtasks = new HashMap<>();
-
-
-
-
-
-
-
 
     public void createTask(Task newTask) {
         switch (newTask.getType()) {
             case TASK:
-                allTasks.put(newTask.getID(), (SingleTask) newTask);
+                allTasks.put(newTask.getID(), newTask);
                 return;
             case EPIC:
                 allEpics.put(newTask.getID(), (Epic) newTask);
@@ -37,9 +27,6 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-
-
-
     @Override
     public void printAllTasks() {
         for (Integer taskId : allTasks.keySet()) {
@@ -47,12 +34,11 @@ public class InMemoryTaskManager implements TaskManager {
         }
         for (Integer epicId : allEpics.keySet()) {
             System.out.println(allEpics.get(epicId));
-                for (SubTask subTask : allEpics.get(epicId).getTaskList()) {
-                    System.out.println("---" + subTask);
-                }
+            for (SubTask subTask : allEpics.get(epicId).getTaskList()) {
+                System.out.println("---" + subTask);
             }
         }
-
+    }
 
     @Override
     public Task getByID(int hashId) {
@@ -74,7 +60,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeById(int hashId) {
         allTasks.remove(hashId);
-        if (allEpics.containsKey(hashId)){
+        if (allEpics.containsKey(hashId)) {
             for (SubTask subTask : allEpics.remove(hashId).getTaskList()) {
                 allSubtasks.remove(subTask.getID());
                 historyManager.remove(subTask.getID());
@@ -83,44 +69,39 @@ public class InMemoryTaskManager implements TaskManager {
         if (allSubtasks.containsKey(hashId)) {
             allEpics.get(allSubtasks.get(hashId).getEpicID()).removeSubtask(allSubtasks.get(hashId));
             allSubtasks.remove(hashId);
-
         }
         historyManager.remove(hashId);
     }
+
     @Override
     public void deleteAllTasks() {
-        allTasks.clear();
-        allEpics.clear();
-        allSubtasks.clear();
         for (Task task : historyManager.getHistory()) {
             historyManager.remove(task.getID());
         }
+        allTasks.clear();
+        allEpics.clear();
+        allSubtasks.clear();
     }
 
     @Override
-    public void updateTask(Task task){
-        if (allTasks.containsValue(task)) {
-            allTasks.remove(task);
-            allTasks.put(task.getID(), (SingleTask) task);
+    public void updateTask(Task task) {
+        if (allTasks.containsKey(task.getID())) {
+            allTasks.put(task.getID(),task);
             return;
         }
-        if (allEpics.containsValue(task)) {
-            allEpics.remove(task);
+        if (allEpics.containsKey(task.getID())) {
             allEpics.put(task.getID(), (Epic) task);
             return;
         }
-        if (allSubtasks.containsValue(task)) {
+        if (allSubtasks.containsKey(task.getID())) {
             Integer epicId = ((SubTask) task).getEpicID();
-            allEpics.get(epicId).removeSubtask((SubTask) task);
+            allEpics.get(epicId).removeSubtask(allSubtasks.get(task.getID()));
             allEpics.get(epicId).addSubTask((SubTask) task);
             allEpics.get(epicId).updateStatus();
-            allSubtasks.remove(task);
             allSubtasks.put(task.getID(), (SubTask) task);
-            }
         }
-
-
     }
+}
 
 
 

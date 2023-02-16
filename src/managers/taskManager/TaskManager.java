@@ -1,11 +1,8 @@
-package Managers.taskManager;
-
+package managers.taskManager;
 import tasks.Task;
 
 
 public interface TaskManager {
-
-
 
 
     void createTask(Task newTask);
@@ -19,9 +16,5 @@ public interface TaskManager {
     void removeById(int hashId);
 
     void updateTask(Task task);
-
-
-
-
 }
 

@@ -1,6 +1,5 @@
-import Managers.Managers;
-import Managers.taskManager.TaskManager;
-import tasks.SingleTask;
+import managers.Managers;
+import managers.taskManager.TaskManager;
 import tasks.Task;
 import tasks.epics.Epic;
 import tasks.epics.subTasks.SubTask;
@@ -9,9 +8,9 @@ public class Main {
     public static void main(String[] args) {
         TaskManager taskManager = Managers.getDefault();
 
-        SingleTask task1 = new SingleTask("task: pay for water", "too expensive");
+        Task task1 = new Task("task: pay for water", "too expensive");
         taskManager.createTask(task1);
-        SingleTask task2 = new SingleTask("task2: pay for electricity", "also too expensive");
+        Task task2 = new Task("task2: pay for electricity", "also too expensive");
         taskManager.createTask(task2);
 
         Epic epic1 = new Epic("zavedi kota", "bold");
@@ -34,8 +33,6 @@ public class Main {
         taskManager.getByID((task1.getID()));
 
         taskManager.removeById(epic1.getID());
-
-
 
         for (Task string : Managers.getDefaultHistory().getHistory()){
             System.out.println(string);
