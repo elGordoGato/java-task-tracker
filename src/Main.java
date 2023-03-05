@@ -32,7 +32,7 @@ public class Main {
         taskManager.getByID(epic1.getID());
         taskManager.getByID((task1.getID()));
 
-        taskManager.removeById(epic1.getID());
+        //removeById(epic1.getID());
 
         for (Task string : Managers.getDefaultHistory().getHistory()){
             System.out.println(string);

@@ -18,7 +18,13 @@ public class Task {
         currentStatus = Status.NEW;
         type = Type.TASK;
     }
-
+    public Task(String id, String type, String title, String status, String description) {                   //id,type,name,status,description,epic
+    this.iD = Integer.parseInt(id);
+    this.type = Type.valueOf(type);
+    this.title = title;
+    this.currentStatus = Status.valueOf(status);
+    this.description = description;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -48,17 +54,9 @@ public class Task {
 
 
     @Override
-    public String toString() {
-        String address = getType() + "{" +
-                "title='" + title + '\'';
-        if (description != null) {
-            address += ", description.length='" + description.length() + '\'';
-        } else {
-            address += ", description.length='null'";
-        }
-        return address + ", iD=" + iD +
-                ", status=" + currentStatus +
-                '}';
+    public String toString() {                  //id,type,name,status,description,epic
+                                                //3,SUBTASK,Sub Task2,DONE,Description sub task3,2
+        return String.format("%d,%s,%s,%s,%s", getID(), getType(), getTitle(), getCurrentStatus(), getDescription());
     }
 
     public int getID() {

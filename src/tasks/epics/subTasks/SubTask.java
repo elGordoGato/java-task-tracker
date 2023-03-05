@@ -11,12 +11,14 @@ public class SubTask extends Task {
         type = Type.SUBTASK;
         epicID = newEpicID;
     }
+    public SubTask(String id, String type, String title, String status, String description, String epicID){
+        super(id,type,title,status,description);
+        this.epicID = Integer.valueOf(epicID);
+    }
 
     @Override
     public String toString() {
-        return super.toString() +
-                "{epicID=" + epicID +
-                '}';
+        return String.format("%s,%s",super.toString(),getEpicID());
     }
 
     public Integer getEpicID() {
