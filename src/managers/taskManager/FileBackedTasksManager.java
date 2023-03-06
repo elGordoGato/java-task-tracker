@@ -18,12 +18,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
 
     public FileBackedTasksManager() {
         try {
-            Path backedTasks = Files.createFile(Paths.get(fileName));
-
-            if (Files.exists(backedTasks)) {
-                System.out.println("Файл " + fileName + " успешно создан.");
+            Path backedTasks = Paths.get(fileName);
+            if (!Files.exists(backedTasks)) {
+                Files.createFile(backedTasks);
             }
-        } catch (IOException ignored) {
+        } catch (IOException exc) {
+            System.out.println(exc.getMessage());
         }
     }
 
@@ -32,16 +32,19 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         try {
             String singleLineData = Files.readString(Path.of(fileName));
             String[] linesData = singleLineData.split("\n");
-            for (int i = 0; i < linesData.length-2; i++) {
+            if(!linesData[0].isEmpty()){
+                for (int i = 0; i < linesData.length-2; i++) {
                     Task task = fileBackedTasksManager.fromString(linesData[i]);
                     fileBackedTasksManager.createTask(task);
-            }
-            if (linesData.length!=0) {
+                }
                 for (Integer hashId : historyFromString(linesData[linesData.length - 1])) {
-                    fileBackedTasksManager.getByID(hashId);
+                    if (hashId!=null) {
+                        fileBackedTasksManager.getByID(hashId);
+                    }
                 }
             }
-        } catch (IOException ignored) {
+        } catch (IOException exception) {
+            System.out.println(exception.getMessage());
         }
         return fileBackedTasksManager;
     }
@@ -126,12 +129,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
     static List<Integer> historyFromString(String value) throws IOException {
         String[] stringData = value.split(",");
         Integer[] intData = new Integer[stringData.length];
-        try {
-            for (int i = 0; i < stringData.length; i++) {
-                intData[i] = Integer.parseInt(stringData[i]);
+        if (!value.contains("no history yet")) {
+            try {
+                for (int i = 0; i < stringData.length; i++) {
+                    intData[i] = Integer.parseInt(stringData[i]);
+                }
+            } catch (NumberFormatException exc) {
+                System.out.println(exc.getMessage());
             }
-        } catch (NumberFormatException exc){
-            throw new IOException();
         }
         return Arrays.asList(intData);
     }
@@ -156,22 +161,23 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
             taskManager.createTask(subTask3);
             taskManager.createTask(epic2);
 
-            //Testing
             taskManager.getByID(task1.getID());
             taskManager.getByID(task2.getID());
             taskManager.getByID(subTask3.getID());
             taskManager.getByID(epic1.getID());
             taskManager.getByID((task1.getID()));
 
+//            taskManager.deleteAllTasks();
+
         taskManager.printAllTasks();
         System.out.println();
-        System.out.println(Managers.getDefaultHistory().getHistory().toString());
+        System.out.println(Managers.getDefaultHistory().getHistory());
         System.out.println();
 
         System.out.println("new taskManager");
         FileBackedTasksManager fileBackedTasksManager2 = loadFromFile();
         fileBackedTasksManager2.printAllTasks();
-        System.out.println(fileBackedTasksManager2.historyManager.getHistory().toString());
+        System.out.println(fileBackedTasksManager2.historyManager.getHistory());
     }
 }
 

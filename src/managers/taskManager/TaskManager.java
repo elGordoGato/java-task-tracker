@@ -7,7 +7,7 @@ public interface TaskManager {
 
     void createTask(Task newTask);
 
-    void deleteAllTasks();
+    void deleteAllTasks();       // Удаление всех задач
 
     void printAllTasks();
 
