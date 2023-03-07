@@ -1,7 +1,7 @@
 
 public class Main {
     public static void main(String[] args) {
-        //Тесты вынесены в метод main в FileBackedTaskManager
+        System.out.println("Тесты вынесены в метод main в FileBackedTaskManager");
 
     }
 }

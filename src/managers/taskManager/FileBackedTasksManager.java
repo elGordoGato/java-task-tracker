@@ -2,6 +2,7 @@ package managers.taskManager;
 import managers.Managers;
 import managers.historyManager.HistoryManager;
 import tasks.Task;
+import tasks.Type;
 import tasks.epics.Epic;
 import tasks.epics.subTasks.SubTask;
 import java.io.FileWriter;
@@ -71,6 +72,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
     @Override
     public void deleteAllTasks() {
         super.deleteAllTasks();
+        save();
+    }
+
+    @Override
+    public void deleteByType(Type type) {
+        super.deleteByType(type);
         save();
     }
 
@@ -167,7 +174,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
             taskManager.getByID(epic1.getID());
             taskManager.getByID((task1.getID()));
 
-//            taskManager.deleteAllTasks();
+            taskManager.deleteByType(Type.EPIC);
 
         taskManager.printAllTasks();
         System.out.println();

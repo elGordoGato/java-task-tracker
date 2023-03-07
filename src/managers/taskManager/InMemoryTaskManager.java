@@ -2,6 +2,7 @@ package managers.taskManager;
 import managers.Managers;
 import managers.historyManager.HistoryManager;
 import tasks.Task;
+import tasks.Type;
 import tasks.epics.Epic;
 import tasks.epics.subTasks.SubTask;
 import java.util.HashMap;
@@ -81,6 +82,34 @@ public class InMemoryTaskManager implements TaskManager {
         allTasks.clear();
         allEpics.clear();
         allSubtasks.clear();
+    }
+
+    @Override
+    public void deleteByType(Type type){
+        switch (type){
+            case TASK:
+                for (Integer hashId : allTasks.keySet()) {
+                    historyManager.remove(hashId);
+                }
+                allTasks.clear();
+                return;
+            case EPIC:
+                for (Integer hashId : allEpics.keySet()) {
+                    historyManager.remove(hashId);
+                }
+                for (Integer hashId : allSubtasks.keySet()) {
+                    historyManager.remove(hashId);
+                }
+                allEpics.clear();
+                allSubtasks.clear();
+                return;
+            case SUBTASK:
+                for (Integer hashId : allSubtasks.keySet()) {
+                    historyManager.remove(hashId);
+                    allEpics.get(allSubtasks.get(hashId).getEpicID()).removeSubtask(allSubtasks.get(hashId));
+                }
+                allSubtasks.clear();
+        }
     }
 
     @Override
