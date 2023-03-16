@@ -1,6 +1,8 @@
 package managers.taskManager;
 import tasks.Task;
 import tasks.Type;
+import java.util.List;
+import java.util.Set;
 
 
 public interface TaskManager {
@@ -12,12 +14,14 @@ public interface TaskManager {
 
     void deleteByType(Type type);
 
-    void printAllTasks();
+    List<Task> getAllTasks();
 
     Task getByID(int hashId);
 
     void removeById(int hashId);
 
     void updateTask(Task task);
+
+    Set<Task> getPrioritizedTasks();
 }
 

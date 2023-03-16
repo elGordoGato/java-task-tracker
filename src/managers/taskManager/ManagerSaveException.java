@@ -1,7 +1,7 @@
 package managers.taskManager;
 
 public class ManagerSaveException extends RuntimeException {
-    String message;
+    private final String message;
 
     public ManagerSaveException(String message) {
         this.message = message;

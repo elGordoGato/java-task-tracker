@@ -1,5 +1,9 @@
 package tasks;
-
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
+import java.util.Optional;
 
 public class Task {
 
@@ -10,59 +14,78 @@ public class Task {
     protected Status currentStatus;
     protected Type type;
 
+    protected LocalDateTime startTime = null;
 
-    public Task(String title, String description) {
+    protected Duration duration = null;
+
+    protected static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+
+
+    public Task(Task task) {
+        this.title = task.title;
+        this.description = task.description;
+        this.iD = task.iD;
+        this.currentStatus = task.currentStatus;
+        this.type = task.type;
+        this.startTime = task.startTime;
+        this.duration = task.duration;
+    }
+
+    public Task(String title, String description, String startTime, String duration) {
         this.title = title;
         this.description = description;
-        iD = hashCode();
+        iD = hashCode()^2;
         currentStatus = Status.NEW;
-        type = Type.TASK;
+        if (Optional.ofNullable(startTime).isPresent()) {
+            this.startTime = LocalDateTime.parse(startTime,
+                    formatter);
+        }
+        if (Optional.ofNullable(duration).isPresent()){
+            this.duration = Duration.ofMinutes(Long.parseLong(duration));
+        }
+        this.type = Type.TASK;
     }
-    public Task(String id, String type, String title, String status, String description) {                   //id,type,name,status,description,epic
-    this.iD = Integer.parseInt(id);
-    this.type = Type.valueOf(type);
-    this.title = title;
-    this.currentStatus = Status.valueOf(status);
-    this.description = description;
+    public Task(String id, String title, String status, String description, String startTime, String duration) {                   //id,type,name,status,description,epic
+        this.iD = Integer.parseInt(id);
+        this.title = title;
+        this.currentStatus = Status.valueOf(status);
+        this.description = description;
+        if (Optional.ofNullable(startTime).isPresent()&&!("null").equals(startTime)) {
+            this.startTime = LocalDateTime.parse(startTime, formatter);
+        }
+        if (Optional.ofNullable(duration).isPresent()&&!("null").equals(duration)){
+            this.duration = Duration.ofMinutes(Long.parseLong(duration));
+        }
+        this.type = Type.TASK;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Task)) return false;
         Task task = (Task) o;
-        return iD == task.getID();
+        return getTitle().equals(task.getTitle()) && getDescription().equals(task.getDescription()) &&
+                getCurrentStatus() == task.getCurrentStatus() && getType() == task.getType() &&
+                Objects.equals(getStartTime(), task.getStartTime()) && Objects.equals(getDuration(), task.getDuration());
     }
-
 
     @Override
     public int hashCode() {
-        int hash = 17 * getClass().hashCode();
-
-        if (title != null) {
-            // вычисляем хеш первого поля и добавляем к нему начальное значение
-            hash = hash + title.hashCode();
-        }
-        hash = hash * 31; // умножаем промежуточный результат на простое число
-
-        if (description != null) {
-            // вычисляем хеш второго поля и добавляем его к общему результату
-            hash = hash + description.hashCode();
-        }
-        return hash * hash; // возвращаем итоговый хеш
+        return Objects.hash(getTitle(), getDescription(), getCurrentStatus(), getType(), getStartTime(), getDuration());
     }
-
 
     @Override
     public String toString() {                  //id,type,name,status,description,epic
                                                 //3,SUBTASK,Sub Task2,DONE,Description sub task3,2
-        return String.format("%d,%s,%s,%s,%s", getID(), getType(), getTitle(), getCurrentStatus(), getDescription());
+        return String.format("%d,%s,%s,%s,%s,%s,%s",
+                getID(), getType(), getTitle(), getCurrentStatus(), getDescription(),
+                Optional.ofNullable(startTime).map(localDateTime -> localDateTime.format(formatter)).orElse(null),
+                Optional.ofNullable(duration).map(Duration::toMinutes).orElse(null));
     }
 
     public int getID() {
         return iD;
     }
-
 
     public void setTitle(String title) {
         this.title = title;
@@ -70,6 +93,14 @@ public class Task {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void setStartTime(String startTime){
+        this.startTime = LocalDateTime.parse(startTime, formatter);
+    }
+
+    public void setDuration(String duration){
+        this.duration = Duration.ofMinutes(Long.parseLong(duration));
     }
 
     public String getTitle() {
@@ -90,6 +121,22 @@ public class Task {
 
     public void updateStatus(Status newStatus) {
         currentStatus = newStatus;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public Duration getDuration(){
+        return duration;
+    }
+
+    public LocalDateTime getEndTime(){
+        if(Optional.ofNullable(startTime).isPresent()&&Optional.ofNullable(duration).isPresent()) {
+            return startTime.plus(duration);
+        } else {
+            return null;
+        }
     }
 }
 
