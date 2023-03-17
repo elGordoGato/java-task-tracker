@@ -49,7 +49,7 @@ public class InMemoryHistoryManager implements HistoryManager {
                 customLinkedList.add(x.data);
             }
 
-            return customLinkedList;    // Реализуйте метод
+            return customLinkedList;
         }
 
         private void removeNode(Node<E> x) {
