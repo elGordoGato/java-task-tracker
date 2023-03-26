@@ -1,4 +1,5 @@
 package managers.taskManager;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -56,6 +57,11 @@ abstract class TaskManagerTest {
                 sub1,
                 epic2));
         expectedTasks.sort(comparator);
+    }
+
+    @AfterEach
+    void resetCondition(){
+        testTaskManager.deleteAllTasks();
     }
 
 

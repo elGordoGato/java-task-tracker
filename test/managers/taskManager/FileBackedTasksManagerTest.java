@@ -19,7 +19,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
 
     @AfterEach
     void restore(){
-        testTaskManager.deleteAllTasks();
+        //testTaskManager.deleteAllTasks();
     }
 
     @Test
@@ -27,7 +27,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         testTaskManager.createTask(epic1);
         testTaskManager.createTask(sub2);
         testTaskManager.getByID(sub2.getID());
-        FileBackedTasksManager loadedTaskManager = FileBackedTasksManager.loadFromFile();
+        FileBackedTasksManager loadedTaskManager = new FileBackedTasksManager();
         assertEquals(List.of(epic1,sub2), loadedTaskManager.getAllTasks());
         assertEquals(List.of(sub2), loadedTaskManager.historyManager.getHistory());
     }
@@ -38,7 +38,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         testTaskManager.createTask(task1);
         testTaskManager.createTask(sub2);
         testTaskManager.removeById(task1.getID());
-        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile();
+        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
         assertEquals(List.of(epic1,sub2),fileBackedTasksManager.getAllTasks());
     }
 
@@ -48,7 +48,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         testTaskManager.createTask(epic1);
         testTaskManager.createTask(sub1);
         testTaskManager.deleteAllTasks();
-        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile();
+        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
         assertEquals(List.of(),fileBackedTasksManager.getAllTasks());
     }
 
@@ -61,7 +61,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         testTaskManager.createTask(task1);
         testTaskManager.deleteByType(Type.TASK);
         testTaskManager.getAllTasks();
-        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile();
+        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
         assertEquals(List.of(epic1,sub1),fileBackedTasksManager.getAllTasks());
 
     }
@@ -80,7 +80,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         newEpic.addSubTask(subTask40);
         newEpic.setTitle("LAST TEST!!1!11!");
         testTaskManager.updateTask(newEpic);
-        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile();
+        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
         assertEquals(List.of(task10,newEpic,subTask40),fileBackedTasksManager.getAllTasks());
 
     }

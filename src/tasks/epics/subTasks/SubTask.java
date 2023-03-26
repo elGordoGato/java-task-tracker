@@ -1,9 +1,11 @@
 package tasks.epics.subTasks;
+
 import tasks.Task;
 import tasks.Type;
+
 import java.util.Objects;
 
-public class SubTask extends Task /*implements Comparable<SubTask>*/{
+public class SubTask extends Task /*implements Comparable<SubTask>*/ {
     private final Integer epicID;
 
     public SubTask(SubTask task) {
@@ -16,8 +18,9 @@ public class SubTask extends Task /*implements Comparable<SubTask>*/{
         epicID = newEpicID;
         this.type = Type.SUBTASK;
     }
-    public SubTask(String id, String title, String status, String description, String startTime, String duration, String epicID){
-        super(id,title,status,description, startTime, duration);
+
+    public SubTask(String id, String title, String status, String description, String startTime, String duration, String epicID) {
+        super(id, title, status, description, startTime, duration);
         this.epicID = Integer.valueOf(epicID);
         this.type = Type.SUBTASK;
     }
@@ -38,7 +41,7 @@ public class SubTask extends Task /*implements Comparable<SubTask>*/{
 
     @Override
     public String toString() {
-        return String.format("%s,%s",super.toString(),getEpicID());
+        return String.format("%s,%s", super.toString(), getEpicID());
     }
 
     public Integer getEpicID() {

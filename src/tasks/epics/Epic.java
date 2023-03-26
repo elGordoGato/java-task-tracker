@@ -1,15 +1,17 @@
 package tasks.epics;
+
 import tasks.Status;
 import tasks.Task;
 import tasks.Type;
 import tasks.epics.subTasks.SubTask;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
 
 public class Epic extends Task {
-    private final Map <Integer, SubTask> taskList;
+    private final Map<Integer, SubTask> taskList;
     private LocalDateTime endTime = null;
 
 
@@ -23,13 +25,14 @@ public class Epic extends Task {
         taskList = new HashMap<>();
         this.type = Type.EPIC;
     }
-    public Epic(String id, String title, String description){
-        super(id,title,String.valueOf(Status.NEW),description, null, null);
+
+    public Epic(String id, String title, String description) {
+        super(id, title, String.valueOf(Status.NEW), description, null, null);
         taskList = new HashMap<>();
         this.type = Type.EPIC;
     }
 
-    public void addSubTask(SubTask subTask){
+    public void addSubTask(SubTask subTask) {
         taskList.put(subTask.getID(), subTask);
         updateStatus();
     }
@@ -39,7 +42,7 @@ public class Epic extends Task {
         updateStatus();
     }
 
-    public void removeSubtask(SubTask subTask){
+    public void removeSubtask(SubTask subTask) {
         taskList.remove(subTask.getID());
         updateStatus();
     }
@@ -49,7 +52,7 @@ public class Epic extends Task {
     }
 
     @Override
-    public LocalDateTime getEndTime(){
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
@@ -59,7 +62,7 @@ public class Epic extends Task {
     }
 
     @Override
-    public void setDuration(String duration){
+    public void setDuration(String duration) {
         updateTiming();
     }
 
@@ -71,33 +74,35 @@ public class Epic extends Task {
 
     private void updateStatus() {
         updateTiming();
-        if ( (taskList.size() == 0) || isSubTasksStatusRequired(Status.NEW)){
+        if ((taskList.size() == 0) || isSubTasksStatusRequired(Status.NEW)) {
             currentStatus = Status.NEW;
-        } else if (isSubTasksStatusRequired(Status.DONE)){
+        } else if (isSubTasksStatusRequired(Status.DONE)) {
             currentStatus = Status.DONE;
         } else {
             currentStatus = Status.IN_PROGRESS;
         }
     }
 
-    private boolean isSubTasksStatusRequired(Status status){
+    private boolean isSubTasksStatusRequired(Status status) {
         for (Integer subId : taskList.keySet()) {
-            if (!taskList.get(subId).getCurrentStatus().equals(status)){
+            if (!taskList.get(subId).getCurrentStatus().equals(status)) {
                 return false;
             }
         }
         return true;
     }
 
-    private void updateTiming(){
+    private void updateTiming() {
         Comparator<SubTask> comparator = Comparator.comparing(Task::getStartTime);
-        Optional<SubTask> earliestSubTask = taskList.values().stream().filter(subTask -> subTask.getStartTime()!=null).min(comparator);
-        earliestSubTask.ifPresentOrElse(task -> startTime = task.getStartTime(),()->startTime = null);
-        Optional<SubTask> lastSubTask = taskList.values().stream().filter(subTask -> subTask.getEndTime()!=null).max(comparator);
-        lastSubTask.ifPresentOrElse(task -> endTime = task.getEndTime(),()->endTime = null);
+        Optional<SubTask> earliestSubTask = taskList.values().stream().filter(subTask -> subTask.getStartTime() != null).min(comparator);
+        earliestSubTask.ifPresentOrElse(task -> startTime = task.getStartTime(), () -> startTime = null);
+        Optional<SubTask> lastSubTask = taskList.values().stream().filter(subTask -> subTask.getEndTime() != null).max(comparator);
+        lastSubTask.ifPresentOrElse(task -> endTime = task.getEndTime(), () -> endTime = null);
         duration = Duration.ZERO;
-        taskList.values().stream().filter(subTask -> subTask.getDuration()!=null).forEach(subTask -> duration = duration.plus(subTask.getDuration()));
-        if (duration == Duration.ZERO){            duration = null;                  }
+        taskList.values().stream().filter(subTask -> subTask.getDuration() != null).forEach(subTask -> duration = duration.plus(subTask.getDuration()));
+        if (duration == Duration.ZERO) {
+            duration = null;
+        }
     }
 
 }

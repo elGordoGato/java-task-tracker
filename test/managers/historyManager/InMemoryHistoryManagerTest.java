@@ -57,7 +57,7 @@ class InMemoryHistoryManagerTest {
     void shouldOverwriteHistoryOfGetByIdWhenCallingAgain() {
         historyTestTaskManager.getByID(task1.getID());
         assertEquals(List.of(epic1, epic2, sub2, task1), historyTestTaskManager.historyManager.getHistory());
-        FileBackedTasksManager loadedTaskManager = FileBackedTasksManager.loadFromFile();
+        FileBackedTasksManager loadedTaskManager = new FileBackedTasksManager();
         assertEquals(List.of(epic1, epic2, sub2, task1), loadedTaskManager.historyManager.getHistory());
     }
 
@@ -71,7 +71,7 @@ class InMemoryHistoryManagerTest {
     void shouldRemoveTasksFromHistoryWhenRemoveByType() {
         historyTestTaskManager.deleteByType(Type.TASK);
         assertEquals(List.of(epic1, epic2, sub2), historyTestTaskManager.historyManager.getHistory());
-        FileBackedTasksManager loadedTaskManager = FileBackedTasksManager.loadFromFile();
+        FileBackedTasksManager loadedTaskManager = new FileBackedTasksManager();
         assertEquals(List.of(epic1, epic2, sub2), loadedTaskManager.historyManager.getHistory());
 
     }
@@ -80,7 +80,7 @@ class InMemoryHistoryManagerTest {
     void shouldRemoveSubTasksFromHistoryWhenRemovingEpic() {
         historyTestTaskManager.removeById(epic1.getID());
         assertEquals(List.of(task1, epic2), historyTestTaskManager.historyManager.getHistory());
-        FileBackedTasksManager loadedTaskManager = FileBackedTasksManager.loadFromFile();
+        FileBackedTasksManager loadedTaskManager = new FileBackedTasksManager();
         assertEquals(List.of(task1, epic2), loadedTaskManager.historyManager.getHistory());
     }
 
@@ -88,7 +88,7 @@ class InMemoryHistoryManagerTest {
     void shouldClearAllHistoryWhenClearAllTasks() {
         historyTestTaskManager.deleteAllTasks();
         assertEquals(List.of(), historyTestTaskManager.historyManager.getHistory());
-        FileBackedTasksManager loadedTaskManager = FileBackedTasksManager.loadFromFile();
+        FileBackedTasksManager loadedTaskManager = new FileBackedTasksManager();
         assertEquals(List.of(), loadedTaskManager.historyManager.getHistory());
     }
 

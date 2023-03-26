@@ -1,4 +1,5 @@
 package tasks;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -8,17 +9,14 @@ import java.util.Optional;
 public class Task {
 
 
-    private String title;
-    private String description;
+    protected static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     private final int iD;
     protected Status currentStatus;
     protected Type type;
-
     protected LocalDateTime startTime = null;
-
     protected Duration duration = null;
-
-    protected static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+    private String title;
+    private String description;
 
 
     public Task(Task task) {
@@ -34,26 +32,27 @@ public class Task {
     public Task(String title, String description, String startTime, String duration) {
         this.title = title;
         this.description = description;
-        iD = hashCode()^2;
+        iD = hashCode() ^ 2;
         currentStatus = Status.NEW;
         if (Optional.ofNullable(startTime).isPresent()) {
             this.startTime = LocalDateTime.parse(startTime,
                     formatter);
         }
-        if (Optional.ofNullable(duration).isPresent()){
+        if (Optional.ofNullable(duration).isPresent()) {
             this.duration = Duration.ofMinutes(Long.parseLong(duration));
         }
         this.type = Type.TASK;
     }
+
     public Task(String id, String title, String status, String description, String startTime, String duration) {                   //id,type,name,status,description,epic
         this.iD = Integer.parseInt(id);
         this.title = title;
         this.currentStatus = Status.valueOf(status);
         this.description = description;
-        if (Optional.ofNullable(startTime).isPresent()&&!("null").equals(startTime)) {
+        if (Optional.ofNullable(startTime).isPresent() && !("null").equals(startTime)) {
             this.startTime = LocalDateTime.parse(startTime, formatter);
         }
-        if (Optional.ofNullable(duration).isPresent()&&!("null").equals(duration)){
+        if (Optional.ofNullable(duration).isPresent() && !("null").equals(duration)) {
             this.duration = Duration.ofMinutes(Long.parseLong(duration));
         }
         this.type = Type.TASK;
@@ -76,7 +75,7 @@ public class Task {
 
     @Override
     public String toString() {                  //id,type,name,status,description,epic
-                                                //3,SUBTASK,Sub Task2,DONE,Description sub task3,2
+        //3,SUBTASK,Sub Task2,DONE,Description sub task3,2
         return String.format("%d,%s,%s,%s,%s,%s,%s",
                 getID(), getType(), getTitle(), getCurrentStatus(), getDescription(),
                 Optional.ofNullable(startTime).map(localDateTime -> localDateTime.format(formatter)).orElse(null),
@@ -87,28 +86,20 @@ public class Task {
         return iD;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setStartTime(String startTime){
-        this.startTime = LocalDateTime.parse(startTime, formatter);
-    }
-
-    public void setDuration(String duration){
-        this.duration = Duration.ofMinutes(Long.parseLong(duration));
-    }
-
     public String getTitle() {
         return title;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Status getCurrentStatus() {
@@ -127,12 +118,20 @@ public class Task {
         return startTime;
     }
 
-    public Duration getDuration(){
+    public void setStartTime(String startTime) {
+        this.startTime = LocalDateTime.parse(startTime, formatter);
+    }
+
+    public Duration getDuration() {
         return duration;
     }
 
-    public LocalDateTime getEndTime(){
-        if(Optional.ofNullable(startTime).isPresent()&&Optional.ofNullable(duration).isPresent()) {
+    public void setDuration(String duration) {
+        this.duration = Duration.ofMinutes(Long.parseLong(duration));
+    }
+
+    public LocalDateTime getEndTime() {
+        if (Optional.ofNullable(startTime).isPresent() && Optional.ofNullable(duration).isPresent()) {
             return startTime.plus(duration);
         } else {
             return null;

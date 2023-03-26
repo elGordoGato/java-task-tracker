@@ -1,9 +1,10 @@
 package managers.taskManager;
-import managers.historyManager.HistoryManager;
+
 import tasks.Task;
 import tasks.Type;
 import tasks.epics.Epic;
 import tasks.epics.subTasks.SubTask;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,10 +26,38 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         } catch (IOException exc) {
             System.out.println(exc.getMessage());
         }
+        this.loadFromFile(this);
     }
 
-    public static FileBackedTasksManager loadFromFile() {
-        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
+    protected static String historyToString() {
+        StringBuilder sb = new StringBuilder();
+        for (Task task : TaskManager.historyManager.getHistory()) {
+            sb.append(task.getID()).append(",");
+        }
+        if (sb.length() != 0) {
+            sb.replace(sb.length() - 1, sb.length(), "");
+        } else {
+            sb.append("no history yet");
+        }
+        return sb.toString();
+    }
+
+    protected static List<Integer> historyFromString(String value) throws IOException {
+        String[] stringData = value.split(",");
+        Integer[] intData = new Integer[stringData.length];
+        if (!value.contains("no history yet")) {
+            try {
+                for (int i = 0; i < stringData.length; i++) {
+                    intData[i] = Integer.parseInt(stringData[i]);
+                }
+            } catch (NumberFormatException exc) {
+                System.out.println(exc.getMessage());
+            }
+        }
+        return Arrays.asList(intData);
+    }
+
+    protected void loadFromFile(FileBackedTasksManager fileBackedTasksManager) {
         try {
             String singleLineData = Files.readString(Path.of(fileName));
             String[] linesData = singleLineData.split("\n");
@@ -46,35 +75,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         } catch (IOException exception) {
             System.out.println(exception.getMessage());
         }
-        return fileBackedTasksManager;
-    }
-
-    private static String historyToString(HistoryManager historyManager) {
-        StringBuilder sb = new StringBuilder();
-        for (Task task : historyManager.getHistory()) {
-            sb.append(task.getID()).append(",");
-        }
-        if (sb.length() != 0) {
-            sb.replace(sb.length() - 1, sb.length(), "");
-        } else {
-            sb.append("no history yet");
-        }
-        return sb.toString();
-    }
-
-    private static List<Integer> historyFromString(String value) throws IOException {
-        String[] stringData = value.split(",");
-        Integer[] intData = new Integer[stringData.length];
-        if (!value.contains("no history yet")) {
-            try {
-                for (int i = 0; i < stringData.length; i++) {
-                    intData[i] = Integer.parseInt(stringData[i]);
-                }
-            } catch (NumberFormatException exc) {
-                System.out.println(exc.getMessage());
-            }
-        }
-        return Arrays.asList(intData);
     }
 
     @Override
@@ -114,7 +114,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         save();
     }
 
-    private void save() {
+    protected void save() {
         try (BufferedWriter fileWriter = Files.newBufferedWriter(Path.of(fileName), StandardOpenOption.TRUNCATE_EXISTING)) {
             for (int Id : allTasks.keySet()) {
                 fileWriter.write(allTasks.get(Id).toString() + "\n");
@@ -126,13 +126,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
                 }
             }
             fileWriter.write("\n");
-            fileWriter.write(historyToString(historyManager));
+            fileWriter.write(historyToString());
         } catch (IOException exc) {
             throw new ManagerSaveException(exc.getMessage());
         }
     }
 
-    private Task fromString(String line) {
+    public Task fromString(String line) {
         String[] task = line.split(",");
         if (task.length >= 2) {
             switch (task[1]) {
