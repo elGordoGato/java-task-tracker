@@ -1,7 +1,7 @@
 package managers.taskManager;
 
-import managers.Managers;
 import managers.historyManager.HistoryManager;
+import managers.historyManager.InMemoryHistoryManager;
 import tasks.Task;
 import tasks.Type;
 
@@ -11,7 +11,7 @@ import java.util.Set;
 
 public interface TaskManager {
 
-    HistoryManager historyManager = Managers.getDefaultHistory();
+    HistoryManager historyManager = new InMemoryHistoryManager();
 
     void createTask(Task newTask);
 

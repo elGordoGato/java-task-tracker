@@ -1,44 +1,53 @@
 package managers.taskManager.httpManager;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import managers.taskManager.FileBackedTasksManager;
 import tasks.Task;
+import tasks.epics.Epic;
 import tasks.epics.subTasks.SubTask;
 
-import java.io.IOException;
-
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 public class HttpTaskManager extends FileBackedTasksManager {
-    private static final String key = String.valueOf(new Random().nextInt(1000));
-    KVTaskClient kvTaskClient;
+    private final KVTaskClient kvTaskClient;
+    private final Gson gson = new Gson();
 
-    public HttpTaskManager(String uri) {
+    public HttpTaskManager(String uri, boolean isLoad) {
         kvTaskClient = new KVTaskClient(uri);
-        //key = String.valueOf(Math.random()*63);
-        this.loadFromFile(this);
+        if (isLoad) {
+            loadFromServer();
+        }
     }
 
-    @Override
-    protected void loadFromFile(FileBackedTasksManager httpTaskManager) {
-        try {
-            String singleLineData = kvTaskClient.load(key);
-            if (!singleLineData.isEmpty()) {
-                String[] linesData = singleLineData.split("\n");
-                if (!linesData[0].isEmpty()) {
-                    for (int i = 0; i < linesData.length - 2; i++) {
-                        Task task = httpTaskManager.fromString(linesData[i]);
-                        httpTaskManager.createTask(task);
-                    }
-                    for (Integer hashId : historyFromString(linesData[linesData.length - 1])) {
-                        if (hashId != null) {
-                            httpTaskManager.getByID(hashId);
-                        }
-                    }
-                }
+    public HttpTaskManager(String uri) {
+        this(uri, false);
+    }
 
-            }
-        } catch (NullPointerException | JsonSyntaxException | IOException e) { // обрабатываем ошибки отправки запроса
+
+    private void loadFromServer() {
+        try {
+            HashMap<Integer, Task> tasks = gson.fromJson(kvTaskClient.load("tasks"),
+                    new TypeToken<HashMap<Integer, Task>>() {
+                    }.getType());
+            allTasks.putAll(tasks);
+            HashMap<Integer, Epic> epics = gson.fromJson(kvTaskClient.load("epics"),
+                    new TypeToken<HashMap<Integer, Epic>>() {
+                    }.getType());
+            allEpics.putAll(epics);
+            HashMap<Integer, SubTask> subTasks = gson.fromJson(kvTaskClient.load("subtasks"),
+                    new TypeToken<HashMap<Integer, SubTask>>() {
+                    }.getType());
+            allSubtasks.putAll(subTasks);
+            ArrayList<Integer> history = gson.fromJson(kvTaskClient.load("history"),
+                    new TypeToken<ArrayList<Integer>>() {
+                    }.getType());
+            history.forEach(this::getByID);
+
+        } catch (JsonSyntaxException e) { // обрабатываем ошибки отправки запроса
             System.out.println("Во время выполнения запроса возникла ошибка.\n" +
                     "Проверьте, пожалуйста, адрес и повторите попытку.");
         }
@@ -46,19 +55,11 @@ public class HttpTaskManager extends FileBackedTasksManager {
 
     @Override
     protected void save() {
-        StringBuilder sb = new StringBuilder();
-        for (int Id : allTasks.keySet()) {
-            sb.append(allTasks.get(Id).toString()).append("\n");
-        }
-        for (int Id : allEpics.keySet()) {
-            sb.append(allEpics.get(Id).toString()).append("\n");
-            for (SubTask sub : allEpics.get(Id).getTaskList()) {
-                sb.append(sub.toString()).append("\n");
-            }
-        }
-        sb.append("\n");
-        sb.append(historyToString());
-        kvTaskClient.put(key, sb.toString());
-    }
+        kvTaskClient.put("tasks", gson.toJson(allTasks));
+        kvTaskClient.put("epics", gson.toJson(allEpics));
+        kvTaskClient.put("subtasks", gson.toJson(allSubtasks));
 
+        String history = gson.toJson(historyManager.getHistory().stream().map(Task::getID).collect(Collectors.toList()));
+        kvTaskClient.put("history", history);
+    }
 }

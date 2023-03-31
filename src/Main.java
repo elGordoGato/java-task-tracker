@@ -1,21 +1,28 @@
-import managers.taskManager.httpManager.HttpTaskManager;
+import managers.taskManager.FileBackedTasksManager;
+import managers.taskManager.httpManager.HttpTaskServer;
 import managers.taskManager.httpManager.KVServer;
 import tasks.Task;
-
+import tasks.epics.Epic;
+import tasks.epics.subTasks.SubTask;
 import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        final String uri = "http://localhost:8078";
 
         KVServer kvServer = new KVServer();
         kvServer.start();
-        HttpTaskManager httpTaskServer = new HttpTaskManager(uri);
+        FileBackedTasksManager httpTaskServer = new FileBackedTasksManager();
+        Epic epic = new Epic("epic", "hello");
 
-        httpTaskServer.createTask(new Task("tiitl", "hello", "12.04.1994 13:34", "1234"));
+        httpTaskServer.createTask(new Task("tiitl", "hello", null, null));
+        httpTaskServer.createTask(epic);
+        httpTaskServer.createTask(new SubTask(epic.getID(), "tiitl", "hello", "25.12.1864 13:45", "695"));
         httpTaskServer.createTask(new Task("T2", "Descr2", "12.05.1995 15:49", "847"));
-        HttpTaskManager httpTaskManager = new HttpTaskManager(uri);
+        httpTaskServer.getByID(epic.getID());
+
+        FileBackedTasksManager httpTaskManager = FileBackedTasksManager.loadFromFile();
         System.out.println(httpTaskManager.getAllTasks());
+        System.out.println(httpTaskManager.historyManager.getHistory());
 
 
     }

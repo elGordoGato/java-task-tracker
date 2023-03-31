@@ -26,10 +26,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         } catch (IOException exc) {
             System.out.println(exc.getMessage());
         }
-        this.loadFromFile(this);
     }
 
-    protected static String historyToString() {
+    private static String historyToString() {
         StringBuilder sb = new StringBuilder();
         for (Task task : TaskManager.historyManager.getHistory()) {
             sb.append(task.getID()).append(",");
@@ -42,7 +41,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         return sb.toString();
     }
 
-    protected static List<Integer> historyFromString(String value) throws IOException {
+    private static List<Integer> historyFromString(String value) throws IOException {
         String[] stringData = value.split(",");
         Integer[] intData = new Integer[stringData.length];
         if (!value.contains("no history yet")) {
@@ -57,24 +56,29 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         return Arrays.asList(intData);
     }
 
-    protected void loadFromFile(FileBackedTasksManager fileBackedTasksManager) {
+    public static FileBackedTasksManager loadFromFile() {
+        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
         try {
             String singleLineData = Files.readString(Path.of(fileName));
-            String[] linesData = singleLineData.split("\n");
-            if (!linesData[0].isEmpty()) {
-                for (int i = 0; i < linesData.length - 2; i++) {
-                    Task task = fileBackedTasksManager.fromString(linesData[i]);
-                    fileBackedTasksManager.createTask(task);
-                }
-                for (Integer hashId : historyFromString(linesData[linesData.length - 1])) {
-                    if (hashId != null) {
-                        fileBackedTasksManager.getByID(hashId);
+            if (!singleLineData.isEmpty()) {
+                String[] linesData = singleLineData.split("\n");
+
+                if (linesData.length!=0 && !linesData[0].isEmpty()) {
+                    for (int i = 0; i < linesData.length - 2; i++) {
+                        Task task = fileBackedTasksManager.fromString(linesData[i]);
+                        fileBackedTasksManager.createTask(task);
+                    }
+                    for (Integer hashId : historyFromString(linesData[linesData.length - 1])) {
+                        if (hashId != null) {
+                            fileBackedTasksManager.getByID(hashId);
+                        }
                     }
                 }
             }
         } catch (IOException exception) {
             System.out.println(exception.getMessage());
         }
+        return fileBackedTasksManager;
     }
 
     @Override
@@ -132,7 +136,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
         }
     }
 
-    public Task fromString(String line) {
+    private Task fromString(String line) {
         String[] task = line.split(",");
         if (task.length >= 2) {
             switch (task[1]) {

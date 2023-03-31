@@ -57,7 +57,7 @@ class InMemoryHistoryManagerTest {
     void shouldOverwriteHistoryOfGetByIdWhenCallingAgain() {
         historyTestTaskManager.getByID(task1.getID());
         assertEquals(List.of(epic1, epic2, sub2, task1), historyTestTaskManager.historyManager.getHistory());
-        FileBackedTasksManager loadedTaskManager = new FileBackedTasksManager();
+        FileBackedTasksManager loadedTaskManager = FileBackedTasksManager.loadFromFile();
         assertEquals(List.of(epic1, epic2, sub2, task1), loadedTaskManager.historyManager.getHistory());
     }
 

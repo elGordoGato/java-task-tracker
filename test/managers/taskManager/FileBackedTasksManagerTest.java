@@ -7,8 +7,10 @@ import tasks.Task;
 import tasks.Type;
 import tasks.epics.Epic;
 import tasks.epics.subTasks.SubTask;
+
 import java.util.List;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FileBackedTasksManagerTest extends TaskManagerTest {
 
@@ -18,7 +20,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
     }
 
     @AfterEach
-    void restore(){
+    void restore() {
         //testTaskManager.deleteAllTasks();
     }
 
@@ -27,8 +29,8 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         testTaskManager.createTask(epic1);
         testTaskManager.createTask(sub2);
         testTaskManager.getByID(sub2.getID());
-        FileBackedTasksManager loadedTaskManager = new FileBackedTasksManager();
-        assertEquals(List.of(epic1,sub2), loadedTaskManager.getAllTasks());
+        FileBackedTasksManager loadedTaskManager = FileBackedTasksManager.loadFromFile();
+        assertEquals(List.of(epic1, sub2), loadedTaskManager.getAllTasks());
         assertEquals(List.of(sub2), loadedTaskManager.historyManager.getHistory());
     }
 
@@ -38,8 +40,8 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         testTaskManager.createTask(task1);
         testTaskManager.createTask(sub2);
         testTaskManager.removeById(task1.getID());
-        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
-        assertEquals(List.of(epic1,sub2),fileBackedTasksManager.getAllTasks());
+        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile();
+        assertEquals(List.of(epic1, sub2), fileBackedTasksManager.getAllTasks());
     }
 
     @Test
@@ -48,8 +50,8 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         testTaskManager.createTask(epic1);
         testTaskManager.createTask(sub1);
         testTaskManager.deleteAllTasks();
-        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
-        assertEquals(List.of(),fileBackedTasksManager.getAllTasks());
+        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile();
+        assertEquals(List.of(), fileBackedTasksManager.getAllTasks());
     }
 
     @Test
@@ -61,8 +63,8 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         testTaskManager.createTask(task1);
         testTaskManager.deleteByType(Type.TASK);
         testTaskManager.getAllTasks();
-        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
-        assertEquals(List.of(epic1,sub1),fileBackedTasksManager.getAllTasks());
+        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile();
+        assertEquals(List.of(epic1, sub1), fileBackedTasksManager.getAllTasks());
 
     }
 
@@ -80,8 +82,8 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         newEpic.addSubTask(subTask40);
         newEpic.setTitle("LAST TEST!!1!11!");
         testTaskManager.updateTask(newEpic);
-        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager();
-        assertEquals(List.of(task10,newEpic,subTask40),fileBackedTasksManager.getAllTasks());
+        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile();
+        assertEquals(List.of(task10, newEpic, subTask40), fileBackedTasksManager.getAllTasks());
 
     }
 }

@@ -4,7 +4,8 @@ import com.google.gson.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import managers.taskManager.FileBackedTasksManager;
+import managers.taskManager.InMemoryTaskManager;
+import managers.taskManager.ManagerSaveException;
 import managers.taskManager.TaskManager;
 import tasks.Status;
 import tasks.Task;
@@ -22,19 +23,37 @@ import java.util.Optional;
 public class HttpTaskServer {
     private static final int PORT = 8080;
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-    private static final Gson gson = new Gson();
-    private final TaskManager taskManager = new FileBackedTasksManager();
+    private static final GsonBuilder gsonBuilder = new GsonBuilder();
+    private static HttpServer httpServer;
+    private static Gson gson;
+    private static TaskManager taskManager = new InMemoryTaskManager();
 
-    public void start() throws IOException {
-        HttpServer httpServer = HttpServer.create();
+    public static void setTaskManager(TaskManager taskManager) {
+        HttpTaskServer.taskManager = taskManager;
+    }
 
-        httpServer.bind(new InetSocketAddress(PORT), 0);
-        httpServer.createContext("/tasks", new TaskHandler());
-        httpServer.start();
+    public static void start() {
+        gsonBuilder.setPrettyPrinting();
+        gson = gsonBuilder.create();
+
+        try {
+            httpServer = HttpServer.create();
+
+            httpServer.bind(new InetSocketAddress(PORT), 0);
+            httpServer.createContext("/tasks", new TaskHandler());
+
+            httpServer.start();
+        } catch (IOException exc) {
+            throw new ManagerSaveException("Can not start http server");
+        }
         System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
     }
 
-    class TaskHandler implements HttpHandler {
+    public static void stop() {
+        httpServer.stop(5);
+    }
+
+    static class TaskHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             Endpoint endpoint = getEndpoint(exchange);
@@ -98,8 +117,11 @@ public class HttpTaskServer {
 
             try {
                 boolean isAbsent = true;
-                byte[] bytes = exchange.getRequestBody().readAllBytes();
-                String bodyWithTask = new String(bytes, DEFAULT_CHARSET);
+                String bodyWithTask = readBody(exchange);
+                if (bodyWithTask.isEmpty()) {
+                    writeResponse(exchange, "no body", 400);
+                    return;
+                }
                 Task inputTask;
                 if (bodyWithTask.contains("\"type\": \"TASK\"")) {
                     inputTask = gson.fromJson(bodyWithTask, Task.class);
@@ -178,8 +200,11 @@ public class HttpTaskServer {
 
         private void handleUpdateSubTaskStatusById(HttpExchange exchange, int epicId) throws IOException {
             try {
-                byte[] bytes = exchange.getRequestBody().readAllBytes();
-                String requestBody = new String(bytes, DEFAULT_CHARSET);
+                String requestBody = readBody(exchange);
+                if (requestBody.isEmpty()) {
+                    writeResponse(exchange, "no body", 400);
+                    return;
+                }
                 JsonElement jsonElement = JsonParser.parseString(requestBody);
                 if (!jsonElement.isJsonObject()) { // проверяем, точно ли мы получили JSON-объект
                     System.out.println("Ответ от сервера не соответствует ожидаемому.");
@@ -251,6 +276,10 @@ public class HttpTaskServer {
             } catch (NumberFormatException exception) {
                 return Optional.empty();
             }
+        }
+
+        private String readBody(HttpExchange h) throws IOException {
+            return new String(h.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
         }
 
         private void writeResponse(HttpExchange exchange,
