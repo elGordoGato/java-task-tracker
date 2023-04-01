@@ -4,7 +4,7 @@ import com.google.gson.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import managers.taskManager.InMemoryTaskManager;
+import managers.Managers;
 import managers.taskManager.ManagerSaveException;
 import managers.taskManager.TaskManager;
 import tasks.Status;
@@ -21,39 +21,43 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class HttpTaskServer {
-    private static final int PORT = 8080;
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private static final GsonBuilder gsonBuilder = new GsonBuilder();
-    private static HttpServer httpServer;
     private static Gson gson;
-    private static TaskManager taskManager = new InMemoryTaskManager();
+    private final TaskManager taskManager;
+    private HttpServer httpServer;
 
-    public static void setTaskManager(TaskManager taskManager) {
-        HttpTaskServer.taskManager = taskManager;
-    }
-
-    public static void start() {
+    public HttpTaskServer() {
+        this.taskManager = Managers.getDefault();
         gsonBuilder.setPrettyPrinting();
         gson = gsonBuilder.create();
+    }
 
+    public HttpTaskServer(TaskManager taskManager) {
+        this.taskManager = taskManager;
+        gsonBuilder.setPrettyPrinting();
+        gson = gsonBuilder.create();
+    }
+
+    public void start(int port) {
         try {
             httpServer = HttpServer.create();
 
-            httpServer.bind(new InetSocketAddress(PORT), 0);
+            httpServer.bind(new InetSocketAddress(port), 0);
             httpServer.createContext("/tasks", new TaskHandler());
 
             httpServer.start();
         } catch (IOException exc) {
             throw new ManagerSaveException("Can not start http server");
         }
-        System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
+        System.out.println("HTTP-сервер запущен на " + port + " порту!");
     }
 
-    public static void stop() {
-        httpServer.stop(5);
+    public void stop() {
+        httpServer.stop(0);
     }
 
-    static class TaskHandler implements HttpHandler {
+    class TaskHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             Endpoint endpoint = getEndpoint(exchange);

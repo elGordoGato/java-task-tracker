@@ -63,14 +63,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
             if (!singleLineData.isEmpty()) {
                 String[] linesData = singleLineData.split("\n");
 
-                if (linesData.length!=0 && !linesData[0].isEmpty()) {
+                if (linesData.length != 0 && !linesData[0].isEmpty()) {
                     for (int i = 0; i < linesData.length - 2; i++) {
                         Task task = fileBackedTasksManager.fromString(linesData[i]);
                         fileBackedTasksManager.createTask(task);
                     }
                     for (Integer hashId : historyFromString(linesData[linesData.length - 1])) {
                         if (hashId != null) {
-                            fileBackedTasksManager.getByID(hashId);
+                            fileBackedTasksManager.addToHistory(hashId);
                         }
                     }
                 }
@@ -79,6 +79,18 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
             System.out.println(exception.getMessage());
         }
         return fileBackedTasksManager;
+    }
+
+    protected void addToHistory(Integer id) {
+        if (allTasks.containsKey(id)) {
+            historyManager.add(allTasks.get(id));
+        }
+        if (allEpics.containsKey(id)) {
+            historyManager.add(allEpics.get(id));
+        }
+        if (allSubtasks.containsKey(id)) {
+            historyManager.add(allSubtasks.get(id));
+        }
     }
 
     @Override

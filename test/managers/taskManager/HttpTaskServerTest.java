@@ -3,7 +3,9 @@ package managers.taskManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import managers.taskManager.httpManager.HttpTaskServer;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import tasks.Status;
 import tasks.Task;
 import tasks.epics.Epic;
@@ -14,18 +16,14 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Comparator;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class HttpTaskServerTest {
     private static final GsonBuilder gsonBuilder = new GsonBuilder();
-
-
     private static Gson gson;
-
+    HttpTaskServer httpTaskServer;
     Task task1 = new Task("Task1", "T1descr",
             null, null);
     Task task2 = new Task("Task2", "T2descr",
@@ -43,15 +41,6 @@ public class HttpTaskServerTest {
     InMemoryTaskManager dataTaskManager = new InMemoryTaskManager();
     HttpClient client = HttpClient.newHttpClient();
 
-    @BeforeAll
-    static void start() {
-        HttpTaskServer.start();
-    }
-
-    @AfterAll
-    static void stop() {
-         HttpTaskServer.stop();
-    }
 
     @BeforeEach
     void setUp() {
@@ -62,12 +51,14 @@ public class HttpTaskServerTest {
         dataTaskManager.createTask(epic2);
         dataTaskManager.createTask(sub1);
         dataTaskManager.createTask(sub2);
-        HttpTaskServer.setTaskManager(dataTaskManager);
-
+        httpTaskServer = new HttpTaskServer(dataTaskManager);
+        httpTaskServer.start(8080);
     }
 
+
     @AfterEach
-    void restore() {
+    void stop() {
+        httpTaskServer.stop();
     }
 
     @Test
@@ -225,7 +216,6 @@ public class HttpTaskServerTest {
     void shouldGetHistory() throws InterruptedException {
         dataTaskManager.getByID(123);
         dataTaskManager.getByID(task1.getID());
-        HttpTaskServer.setTaskManager(dataTaskManager);
         URI urlPost = URI.create("http://localhost:8080/tasks/history?/");
         HttpRequest requestPost = HttpRequest.newBuilder().uri(urlPost).GET().build();
         try {

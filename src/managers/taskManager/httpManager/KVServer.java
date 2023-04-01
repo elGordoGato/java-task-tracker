@@ -56,7 +56,7 @@ public class KVServer {
             }
         } finally {
             h.close();
-        }// TODO Добавьте получение значения по ключу
+        }
     }
 
     private void save(HttpExchange h) throws IOException {
@@ -131,5 +131,9 @@ public class KVServer {
         h.getResponseHeaders().add("Content-Type", "application/json");
         h.sendResponseHeaders(200, resp.length);
         h.getResponseBody().write(resp);
+    }
+
+    public void stop() {
+        server.stop(0);
     }
 }

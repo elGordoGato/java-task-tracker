@@ -1,4 +1,5 @@
 package managers.taskManager;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,19 +12,24 @@ import tasks.Task;
 import tasks.Type;
 import tasks.epics.Epic;
 import tasks.epics.subTasks.SubTask;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-abstract class TaskManagerTest {
+abstract class TaskManagerTest<T extends TaskManager> {
     TaskManager testTaskManager;
-
     TaskManager dataTaskManager;
     List<Task> expectedTasks;
     Comparator<Task> comparator = Comparator.comparingInt(Task::getID);
-    Task task1;
+    Task task1 = new Task("Task1", "T1descr",
+            null, null);
     Task task2;
     Task epic1;
     Task sub1;
@@ -35,8 +41,6 @@ abstract class TaskManagerTest {
     @BeforeEach
     public void setDataTaskManager() {
         dataTaskManager = new InMemoryTaskManager();
-        task1 = new Task("Task1", "T1descr",
-                null, null);
         task2 = new Task("Task2", "T2descr",
                 "24.12.1984 16:20", "754");
         epic1 = new Epic("Epic1", "E1descr");
@@ -60,8 +64,8 @@ abstract class TaskManagerTest {
     }
 
     @AfterEach
-    void resetCondition(){
-        testTaskManager.deleteAllTasks();
+    void resetCondition() {
+        //testTaskManager.deleteAllTasks();
     }
 
 
@@ -90,7 +94,7 @@ abstract class TaskManagerTest {
         assertNull(testTaskManager.getByID(sub3.getID()));
         assertEquals("1984-12-24T16:24", testTaskManager.getByID(epic1.getID()).getStartTime().toString());
         assertEquals("1984-12-24T17:08", testTaskManager.getByID(epic1.getID()).getEndTime().toString());
-        assertEquals(Set.of(sub2,task1,sub1), testTaskManager.getPrioritizedTasks());
+        assertEquals(Set.of(sub2, task1, sub1), testTaskManager.getPrioritizedTasks());
 
     }
 
@@ -131,24 +135,24 @@ abstract class TaskManagerTest {
     void shouldDeleteAllSubTasksWhenDeleteByTypeEpic() {
         assertEquals(new ArrayList<>(), testTaskManager.getAllTasks());
         testTaskManager = dataTaskManager;
-        testTaskManager.createTask(new SubTask(epic1.getID(),"SubTask4","S4descr", null, null));
+        testTaskManager.createTask(new SubTask(epic1.getID(), "SubTask4", "S4descr", null, null));
         testTaskManager.deleteByType(Type.EPIC);
         assertEquals(List.of(task1), testTaskManager.getAllTasks());
         assertEquals(Set.of(task1), testTaskManager.getPrioritizedTasks());
     }
 
     @Test
-    void shouldKeepEpicWhenDeleteAllSubTasks(){
+    void shouldKeepEpicWhenDeleteAllSubTasks() {
         dataTaskManager.createTask(sub1);
         dataTaskManager.createTask(sub2);
         testTaskManager = dataTaskManager;
-        ((Epic)epic1).updateSubTaskStatusById(sub1.getID(),Status.DONE);
+        ((Epic) epic1).updateSubTaskStatusById(sub1.getID(), Status.DONE);
         testTaskManager.deleteByType(Type.SUBTASK);
         assertNull(testTaskManager.getByID(epic1.getID()).getStartTime());
         assertNull(testTaskManager.getByID(epic1.getID()).getDuration());
         assertNull(testTaskManager.getByID(epic1.getID()).getDuration());
         assertEquals(Status.NEW, testTaskManager.getByID(epic1.getID()).getCurrentStatus());
-        assertEquals(List.of(task1,epic1,epic2), testTaskManager.getAllTasks());
+        assertEquals(List.of(task1, epic1, epic2), testTaskManager.getAllTasks());
         assertEquals(Set.of(task1), testTaskManager.getPrioritizedTasks());
     }
 
@@ -291,24 +295,23 @@ abstract class TaskManagerTest {
                 testTaskManager.getByID(task1.getID()).toString());
     }
 
-        @Test
-        void shouldUpdateSubtasksWhenUpdatingEpic(){
+    @Test
+    void shouldUpdateSubtasksWhenUpdatingEpic() {
         testTaskManager = dataTaskManager;
         Epic newEpic = new Epic(String.valueOf(epic1.getID()), "Changed Epic", "new descr");
-        newEpic.addSubTask((SubTask)sub3);
+        newEpic.addSubTask((SubTask) sub3);
         testTaskManager.updateTask(newEpic);
         List<Task> newListOfTasks = new ArrayList<>(testTaskManager.getAllTasks());
         newListOfTasks.sort(comparator);
-        assertEquals(Stream.of(task1,newEpic,sub3,epic2).sorted(comparator).collect(Collectors.toList()),
+        assertEquals(Stream.of(task1, newEpic, sub3, epic2).sorted(comparator).collect(Collectors.toList()),
                 newListOfTasks);
-        assertEquals(Set.of(sub3,task1), testTaskManager.getPrioritizedTasks());
+        assertEquals(Set.of(sub3, task1), testTaskManager.getPrioritizedTasks());
 
-        }
-
+    }
 
 
     @Test
-    void shouldReturnPrioritizedTasksList(){
+    void shouldReturnPrioritizedTasksList() {
         dataTaskManager.createTask(sub1);
         dataTaskManager.createTask(sub2);
         testTaskManager = dataTaskManager;
@@ -319,11 +322,8 @@ abstract class TaskManagerTest {
         testTaskManager.updateTask(sub4);
         Set<Task> prioritizedTasks = testTaskManager.getPrioritizedTasks();
         System.out.println(prioritizedTasks);
-        assertEquals(Set.of(sub2,task1,sub1), prioritizedTasks);
+        assertEquals(Set.of(sub2, task1, sub1), prioritizedTasks);
     }
-
-
-
 
 
     private int findUniqueId(TaskManager testTaskManager) {

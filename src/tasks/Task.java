@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Optional;
 
-public class Task {
+public class Task implements Comparable<Task> {
 
 
     protected static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
@@ -136,6 +136,11 @@ public class Task {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public int compareTo(Task o) {
+        return o.getID() - this.getID();
     }
 }
 

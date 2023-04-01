@@ -16,19 +16,27 @@ public class InMemoryTaskManager implements TaskManager {
     protected final HashMap<Integer, Epic> allEpics = new HashMap<>();
     protected final HashMap<Integer, SubTask> allSubtasks = new HashMap<>();
     private final Comparator<Task> comparator = (o1, o2) -> {
-        if (o1.getStartTime() == null && o2.getStartTime() == null) {
+
+
+        if (o1 != null && o2 != null && o1.getStartTime() == null && o2.getStartTime() == null) {
             return o1.getID() - o2.getID();
         }
-        if (o1.getStartTime() == null) {
+        if (o1 != null && o1.getStartTime() == null) {
             return +1;
         }
-        if (o2.getStartTime() == null) {
+        if (o2 != null && o2.getStartTime() == null) {
+            return -1;
+        }
+        if (o1 == null) {
+            return +1;
+        }
+        if (o2 == null) {
             return -1;
         }
         return o1.getStartTime().compareTo(o2.getStartTime());
     };
 
-    private final Set<Task> prioritizedTasks = new TreeSet<>(comparator);
+    protected final Set<Task> prioritizedTasks = new TreeSet<>(comparator);
 
 
     public void createTask(Task newTask) {
