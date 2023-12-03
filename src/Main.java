@@ -13,6 +13,7 @@ public class Main {
         KVServer kvServer = new KVServer();
         kvServer.start();
         HttpTaskManager httpTaskServer = new HttpTaskManager("http://localhost:8078");
+/*
         Epic epic = new Epic("epic", "hello");
 
         httpTaskServer.createTask(new Task("title", "hello", null, null));
@@ -25,6 +26,7 @@ public class Main {
         System.out.println(httpTaskManager.getAllTasks());
         System.out.println(httpTaskManager.historyManager.getHistory());
         System.out.println(httpTaskManager.getPrioritizedTasks());
+*/
 
 
     }
