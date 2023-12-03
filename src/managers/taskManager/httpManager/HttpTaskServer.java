@@ -28,9 +28,7 @@ public class HttpTaskServer {
     private HttpServer httpServer;
 
     public HttpTaskServer() {
-        this.taskManager = Managers.getDefault();
-        gsonBuilder.setPrettyPrinting();
-        gson = gsonBuilder.create();
+        this(Managers.getDefault());
     }
 
     public HttpTaskServer(TaskManager taskManager) {
@@ -57,7 +55,7 @@ public class HttpTaskServer {
         httpServer.stop(0);
     }
 
-    class TaskHandler implements HttpHandler {
+    private class TaskHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             Endpoint endpoint = getEndpoint(exchange);
