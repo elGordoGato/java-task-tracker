@@ -15,9 +15,9 @@ public class Main {
         HttpTaskManager httpTaskServer = new HttpTaskManager("http://localhost:8078");
         Epic epic = new Epic("epic", "hello");
 
-        httpTaskServer.createTask(new Task("tiitl", "hello", null, null));
+        httpTaskServer.createTask(new Task("title", "hello", null, null));
         httpTaskServer.createTask(epic);
-        httpTaskServer.createTask(new SubTask(epic.getID(), "tiitl", "hello", "25.12.1864 13:45", "695"));
+        httpTaskServer.createTask(new SubTask(epic.getID(), "title", "hello", "25.12.1864 13:45", "695"));
         httpTaskServer.createTask(new Task("T2", "Descr2", "12.05.1995 15:49", "847"));
         httpTaskServer.getByID(epic.getID());
 
