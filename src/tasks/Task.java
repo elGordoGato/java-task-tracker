@@ -32,7 +32,7 @@ public class Task implements Comparable<Task> {
     public Task(String title, String description, String startTime, String duration) {
         this.title = title;
         this.description = description;
-        iD = hashCode() ^ 2;
+        iD = Math.abs(hashCode());
         currentStatus = Status.NEW;
         if (Optional.ofNullable(startTime).isPresent()) {
             this.startTime = LocalDateTime.parse(startTime,

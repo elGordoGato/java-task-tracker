@@ -66,7 +66,10 @@ public class HttpTaskManager extends FileBackedTasksManager {
         kvTaskClient.put(EPIC, gson.toJson(allEpics));
         kvTaskClient.put(SUBTASK, gson.toJson(allSubtasks));
 
-        String history = gson.toJson(historyManager.getHistory().stream().map(Task::getID).collect(Collectors.toList()));
+        String history = gson.toJson(historyManager.getHistory()
+                .stream()
+                .map(Task::getID)
+                .collect(Collectors.toList()));
         kvTaskClient.put(HISTORY, history);
     }
 }

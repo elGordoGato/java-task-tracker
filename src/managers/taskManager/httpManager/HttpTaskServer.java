@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -227,13 +228,12 @@ public class HttpTaskServer {
             String requestMethod = exchange.getRequestMethod();
             String[] pathParts = requestPath.split("/");
             Optional<Integer> idOpt = getTaskId(exchange);
-            System.out.println(exchange.getRequestURI().getPath());
 
 
             if (pathParts.length == 2 && pathParts[1].equals("tasks")) {
                 return Endpoint.GET_PRIORITY;
             }
-            if (("/tasks/task").equals(requestPath) && idOpt.isEmpty()) {
+            if (requestPath.contains("tasks/task") && idOpt.isEmpty()) {
                 if (requestMethod.equals("GET")) {
                     return Endpoint.GET_TASKS;
                 }
@@ -266,9 +266,8 @@ public class HttpTaskServer {
 
 
         private Optional<Integer> getTaskId(HttpExchange exchange) {
-            String query = exchange.getRequestURI().getRawQuery();
-            System.out.println(query);
-            String[] pair = query.split("=");
+            Optional<String> query = Optional.ofNullable(exchange.getRequestURI().getRawQuery());
+            String[] pair = query.orElse("").split("=");
             try {
                 if (pair.length == 2 && Objects.equals(pair[0], "id")) {
                     return Optional.of(Integer.parseInt(pair[1]));
@@ -291,9 +290,11 @@ public class HttpTaskServer {
                 exchange.sendResponseHeaders(responseCode, 0);
             } else {
                 byte[] bytes = responseString.getBytes(DEFAULT_CHARSET);
+                exchange.getResponseHeaders().add("Content-Type", "application/json");
                 exchange.sendResponseHeaders(responseCode, bytes.length);
                 try (OutputStream os = exchange.getResponseBody()) {
                     os.write(bytes);
+                    System.out.println(Map.of(responseCode, responseString));
                 }
             }
             exchange.close();
